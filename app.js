@@ -1,4 +1,3 @@
-const log = require("./log/index");
 const express = require("express");
 const app = express();
 const path = require('path');
@@ -12,17 +11,13 @@ const cors = require('cors');
 // const notificationRouter = require('./notificationRoute/router');
 // const fuelRouter = require("./fuelRoute/router");
 // const accessorialRouter = require("./accessorialRoute/router");
-// const dotenv = require('dotenv');
+require('dotenv').config()
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
 var cookieParser = require('cookie-parser');
-const { setNotification } = require('./notificationRoute/mongo');
 var _ = require("lodash");
 //const { verifyJwtToken, isAuthenticatedService } = require("./authentication");
 
-if (process.env.NODE_ENV !== 'production') {
-	require('dotenv').config()
-}
 
 // //global mongo connection
 // mongoose.connect(process.env.MONGO_CONNECTION, {

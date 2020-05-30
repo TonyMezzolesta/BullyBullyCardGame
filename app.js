@@ -3,18 +3,10 @@ const app = express();
 const path = require('path');
 // const mongoose = require('mongoose');
 const cors = require('cors');
-// const userRouter = require("./userRoute/router");
-// const customerRouter = require("./customerRoute/router");
-// const rateRouter = require("./rateRoute/router");
-// const orderRouter = require("./orderRoute/router");
-// const applicationRouter = require("./applicationRoute/router");
-// const notificationRouter = require('./notificationRoute/router');
-// const fuelRouter = require("./fuelRoute/router");
-// const accessorialRouter = require("./accessorialRoute/router");
 require('dotenv').config()
 var server = require('http').createServer(app);
 var io = require('socket.io').listen(server);
-var cookieParser = require('cookie-parser');
+// var cookieParser = require('cookie-parser');
 var _ = require("lodash");
 //const { verifyJwtToken, isAuthenticatedService } = require("./authentication");
 
@@ -50,7 +42,7 @@ app.use(cors(corsOptions));
 //app.use(cors());
 
 //cookies
-app.use(cookieParser())
+//app.use(cookieParser())
 
 // set the db to pass through the routes
 app.use((req, res, next) => {
@@ -107,40 +99,33 @@ next();
   });
 });
 
-//api route for outside messages
-app.post('/message', isAuthenticatedService, async function (req, res) {
+// //api route for outside messages
+// app.post('/message', isAuthenticatedService, async function (req, res) {
 
-  var target = _.find(connections, x => x.userID === req.query.id)
+//   var target = _.find(connections, x => x.userID === req.query.id)
 
-  switch (req.query.action){
-    case "notification":
-      await setNotification(req.body);
-      //emit if connection found
-      if(target){
-        target.socket.emit('notification', 'trigger get notification');
-        res.send(200);
-      }
-      else{
-        res.send(404);
-      }
-  }
-  //io.sockets.emit('notification', 'trigger get notification')
-})
+//   switch (req.query.action){
+//     case "notification":
+//       await setNotification(req.body);
+//       //emit if connection found
+//       if(target){
+//         target.socket.emit('notification', 'trigger get notification');
+//         res.send(200);
+//       }
+//       else{
+//         res.send(404);
+//       }
+//   }
+//   //io.sockets.emit('notification', 'trigger get notification')
+// })
 
 
 
 //api routes
-// app.use("/api/user", userRouter);
-// app.use("/api/customer", customerRouter);
-// app.use("/api/rate", rateRouter);
-// app.use("/api/order", orderRouter);
-// app.use("/api/application", applicationRouter);
-// app.use("/api/notification", notificationRouter);
-// app.use("/api/fuel", fuelRouter);
-// app.use("/api/accessorial", accessorialRouter);
+
 
 /////////Make sure this is set last as this handles the routes with wildcard (static files)
-get('/*', (req,res) =>{
+app.get('/*', (req,res) =>{
     console.log('***************************hit main app')
     //console.log('*********************************Cookies: ', req.cookies['trt-rate-guide-token']);
     //var test = JSON.parse(req.cookies['trt-rate-guide-token']);

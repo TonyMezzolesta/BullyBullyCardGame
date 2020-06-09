@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const path = require('path');
+const { endTurn } = require('./actions');
 // const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config()
@@ -61,7 +62,11 @@ app.use((req, res, next) => {
 });
 
 //socket connections
-var connections = []
+var players = []
+
+// var game = [{
+//   gameID: 
+// }]
 
 io.sockets.use(async function(socket, next){
 //   if (socket.handshake.query && socket.handshake.query.token){
@@ -81,21 +86,48 @@ next();
 .on('connection', function(socket) {
   console.log('connected')
 
-  //save connection to array
-  connections.push({sessionID: socket.client.id, socket: socket, userID: socket.handshake.query.user_id});
-
   //routes
-  socket.on('sendNotification', function(data){
-    console.log('***********************sendNotification: ')
+  socket.on('newMessage', function(data){
+    console.log('***********************send message: ')
     console.log(data)
     if(data){
       //data.user_id
     }
   })
 
+  socket.on('joinGame', function(data){
+    console.log(data);
+    socket.join(data.gameID);
+    var newPlayer = {sessionID: socket.id, userName: data.userName, currentAction: null, isTurn: false};
+    players.push(newPlayer);
+    socket.broadcast.to(data.gameID).emit('newUser', `${data.userName} has entered the game`);
+    //check to see if player is first in array, if so, make it their turn
+    console.log(players.findIndex(x => x.sessionID === socket.id))
+    if(players.findIndex(x => x.sessionID === socket.id) === 0){
+      players[players.findIndex(x => x.sessionID === socket.id)].isTurn = true;
+    }
+    //nsp will broadcast to everyone including yourself
+    socket.nsp.in(data.gameID).emit('gameInit', {players: players});
+  })
+
+  socket.on('playerAction', async function(data){
+    console.log(data)
+    //if end turn then go to the next player
+    switch (data.actionType){
+      case "endTurn":
+        await endTurn(socket, players);
+        break;
+      default:
+        players[players.findIndex(x => x.sessionID === socket.id)].currentAction = data.action;
+        break;
+    }     
+
+    socket.nsp.in(data.gameID).emit('gameInit', {players: players});
+  })
+
   //disconnect socket
   socket.on('disconnect', function() {
-    _.remove(connections, x => x.userID === socket.handshake.query.user_id)
+    
   });
 });
 

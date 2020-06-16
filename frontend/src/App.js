@@ -21,6 +21,21 @@ const UserCard = (props) => {
   </Card>
 }
 
+const GameCard = (props) => {
+  console.log(props);
+  var cardName = (props.card) ? props.card.userName : "No Card";
+  var cardAction = (props.card) ? props.card.currentAction : "No Actions"
+  return <Card border="primary" style={{ width: '18rem' }}>
+    <Card.Header>Title</Card.Header>
+    <Card.Body>
+    <Card.Title>{playerName}</Card.Title>
+      <Card.Text>
+        {currentAction}
+      </Card.Text>
+    </Card.Body>
+  </Card>
+}
+
 function App() {
   let [user, setUser] = useState(null);
   let [connect, setConnect] = useState(false);
@@ -83,6 +98,16 @@ function App() {
     socket.emit('playerAction', action);
   }
 
+  function newGame(){
+    var action = {
+      gameID: gameID,
+      actionType: "newGame",
+      currentAction: "start new game"
+    }
+
+    socket.emit('playerAction', action);
+  }
+
   return (
     <>
       {(connect) ?
@@ -107,7 +132,7 @@ function App() {
             </Col>
           </Row>
           <Row>
-            <UserControl endTurn={endTurn} player={players[players.findIndex(x => x.sessionID === socket.id)]}/>
+            <UserControl endTurn={endTurn} player={players[players.findIndex(x => x.sessionID === socket.id)]} newGame={newGame}/>
           </Row>
         </Container> :
         <Container fluid >

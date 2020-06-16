@@ -1,7 +1,9 @@
 const express = require("express");
 const app = express();
 const path = require('path');
-const { endTurn } = require('./actions');
+const { endTurn, newGame } = require('./actions');
+const { bullyCards } = require('./cards/bullyCards');
+const { mainCards } = require('./cards/mainCards');
 // const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config()
@@ -64,10 +66,6 @@ app.use((req, res, next) => {
 //socket connections
 var players = []
 
-// var game = [{
-//   gameID: 
-// }]
-
 io.sockets.use(async function(socket, next){
 //   if (socket.handshake.query && socket.handshake.query.token){
 //     const tokenObj = await verifyJwtToken(socket.handshake.query.token);
@@ -117,12 +115,15 @@ next();
       case "endTurn":
         await endTurn(socket, players);
         break;
+      case "newGame":
+        await newGame(socket, players, bullyCards, mainCards);
+        break;
       default:
         players[players.findIndex(x => x.sessionID === socket.id)].currentAction = data.action;
         break;
     }     
 
-    socket.nsp.in(data.gameID).emit('gameInit', {players: players});
+    socket.nsp.in(data.gameID).emit('gameInit', {players: players, bullyCards: bullyCards, mainCards: mainCards});
   })
 
   //disconnect socket

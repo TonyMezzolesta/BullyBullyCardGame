@@ -11,6 +11,9 @@ console.log(props)
             <Button variant="primary" onClick={props.endTurn} disabled={(props.player) ? !props.player.isTurn : true}>
                 End Turn
             </Button>
+            <Button variant="primary" onClick={props.newGame} disabled={(props.player) ? !props.player.isTurn : true}>
+                New Game
+            </Button>
         </Container>
       </>
     )
